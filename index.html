@@ -3,129 +3,135 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Transdev Transport Analytics — Power BI</title>
-  <meta name="description" content="Transdev transport data exercise — embedded Power BI report." />
+  <title>BOAM Report — Power BI</title>
+  <meta name="description" content="BOAM transport analytics — embedded Power BI report." />
 
   <style>
     :root{
-      --bg: #0f1222;
+      --bg:#0f0f14;
       --panel: rgba(255,255,255,0.06);
-      --text: #e8e8ee;
-      --muted:#aeb1c3;
-      --accent:#6ee7ff;
-      --accent-2:#9b8cff;
+      --text:#f4f5f7;
+      --muted:#a8acb8;
+      --accent:#ef4444;         /* red */
+      --accent-2:#fb7185;       /* soft red/pink */
       --ring:#ffffff22;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 18px;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:20px;
+      --grid:#ffffff08;
     }
     [data-theme="light"]{
-      --bg:#f6f7fb;
+      --bg:#f7f7f9;
       --panel:#ffffffcc;
-      --text:#1b1e2a;
-      --muted:#4b5063;
-      --accent:#0ea5e9;
-      --accent-2:#7c3aed;
+      --text:#111318;
+      --muted:#4d5160;
+      --accent:#dc2626;
+      --accent-2:#ef4444;
       --ring:#00000014;
-      --shadow: 0 10px 30px rgba(0,0,0,.12);
+      --shadow:0 10px 30px rgba(0,0,0,.12);
+      --grid:#00000006;
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
       margin:0;
-      font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
       color:var(--text);
       background:
-        radial-gradient(1200px 600px at -10% -10%, #0ea5e955 0%, transparent 60%),
-        radial-gradient(1000px 500px at 110% -10%, #7c3aed33 0%, transparent 60%),
-        radial-gradient(1200px 600px at 50% 120%, #22d3ee22 0%, transparent 60%),
+        radial-gradient(1200px 600px at -10% -10%, color-mix(in oklab, var(--accent) 35%, transparent) 0%, transparent 60%),
+        radial-gradient(1000px 500px at 110% -10%, color-mix(in oklab, var(--accent-2) 25%, transparent) 0%, transparent 60%),
+        radial-gradient(1200px 600px at 50% 120%, color-mix(in oklab, var(--accent) 15%, transparent) 0%, transparent 60%),
         var(--bg);
       transition: background .3s ease, color .3s ease;
     }
 
-    .wrap{
-      max-width:1200px;
-      padding:24px;
-      margin:0 auto;
+    /* subtle grid overlay */
+    body::before{
+      content:"";
+      position:fixed; inset:0; pointer-events:none;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 22px 22px;
+      mask-image: radial-gradient(1000px 600px at 50% 20%, black, transparent 80%);
     }
+
+    .wrap{max-width:1200px; padding:24px; margin:0 auto;}
 
     header{
-      display:flex;
-      align-items:center;
-      gap:16px;
-      justify-content:space-between;
-      margin-bottom:18px;
+      display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:18px;
     }
-
-    .brand{
-      display:flex; align-items:center; gap:12px;
-    }
+    .brand{display:flex; align-items:center; gap:12px;}
     .dot{
-      width:14px; height:14px; border-radius:50%;
+      width:16px; height:16px; border-radius:50%;
       background: conic-gradient(from 0deg, var(--accent), var(--accent-2));
-      box-shadow: 0 0 20px var(--accent-2);
+      box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 15%, transparent),
+                  0 0 28px color-mix(in oklab, var(--accent) 55%, transparent);
+      animation: pulse 1.8s ease-in-out infinite;
     }
-    .title{
-      margin:0; font-weight:650; letter-spacing:.2px;
+    @keyframes pulse{
+      0%,100%{ box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 10%, transparent), 0 0 22px color-mix(in oklab, var(--accent) 50%, transparent) }
+      50%{    box-shadow: 0 0 0 6px color-mix(in oklab, var(--accent) 18%, transparent), 0 0 34px color-mix(in oklab, var(--accent) 70%, transparent) }
     }
-    .subtitle{
-      margin:2px 0 0; font-size:13px; color:var(--muted)
-    }
+    .title{margin:0; font-weight:700; letter-spacing:.2px;}
+    .subtitle{margin:2px 0 0; font-size:13px; color:var(--muted)}
 
-    .toolbar{
-      display:flex; gap:10px; flex-wrap:wrap;
-    }
+    .toolbar{display:flex; gap:10px; flex-wrap:wrap;}
     .btn{
       border:1px solid var(--ring);
-      background:linear-gradient(180deg, var(--panel), transparent);
+      background:
+        linear-gradient(180deg, color-mix(in oklab, var(--panel) 100%, transparent), transparent),
+        radial-gradient(120% 120% at -10% -10%, color-mix(in oklab, var(--accent) 12%, transparent), transparent);
       color:var(--text);
       padding:10px 14px;
-      border-radius:12px;
+      border-radius:14px;
       cursor:pointer;
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
       box-shadow: var(--shadow);
       transition: transform .08s ease, border-color .2s ease, background .2s ease;
-      font-weight:600;
-      font-size:14px;
+      font-weight:600; font-size:14px;
     }
-    .btn:hover{ transform: translateY(-1px); border-color: #ffffff44; }
-    .btn:active{ transform: translateY(0); }
-    .btn.primary{ border-color:#ffffff55 }
+    .btn:hover{ transform: translateY(-1px); border-color:#ffffff44 }
+    .btn:active{ transform: translateY(0) }
+    .btn.primary{
+      border-color: color-mix(in oklab, var(--accent) 50%, transparent);
+      background:
+        linear-gradient(180deg, color-mix(in oklab, var(--accent) 12%, transparent), transparent),
+        linear-gradient(0deg, var(--panel), transparent);
+    }
     .btn.ghost{ background:transparent; box-shadow:none }
 
     .card{
       position:relative;
-      background:linear-gradient(180deg, var(--panel), transparent);
+      background:
+        linear-gradient(180deg, var(--panel), transparent),
+        radial-gradient(80% 120% at 10% -10%, color-mix(in oklab, var(--accent) 10%, transparent), transparent);
       border:1px solid var(--ring);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       overflow:hidden;
     }
-
     .frame-wrap{
-      position:relative;
-      width:100%;
-      aspect-ratio: 16 / 9;
-      min-height: 420px;
-      background: #0b0d1a;
+      position:relative; width:100%; aspect-ratio:16/9; min-height:420px; background:#0b0d12;
     }
-    iframe{
-      position:absolute; inset:0; width:100%; height:100%; border:0;
+    iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+
+    /* fancy corner accent */
+    .corner{
+      position:absolute; top:-60px; right:-60px; width:160px; height:160px;
+      background: radial-gradient(closest-side, color-mix(in oklab, var(--accent) 35%, transparent), transparent 70%);
+      filter: blur(26px); pointer-events:none; opacity:.6;
     }
 
     .loader{
-      position:absolute; inset:0;
-      display:grid; place-items:center;
-      background: linear-gradient(180deg, transparent, rgba(0,0,0,.15));
-      backdrop-filter: blur(2px);
-      -webkit-backdrop-filter: blur(2px);
+      position:absolute; inset:0; display:grid; place-items:center;
+      background: linear-gradient(180deg, transparent, rgba(0,0,0,.18));
+      backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
       transition: opacity .25s ease;
     }
     .spinner{
       width:56px; height:56px; border-radius:50%;
-      border:4px solid #ffffff22;
-      border-top-color:var(--accent);
+      border:4px solid #ffffff22; border-top-color:var(--accent);
       animation:spin .9s linear infinite;
     }
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -156,28 +162,30 @@
       <div class="brand">
         <div class="dot" aria-hidden="true"></div>
         <div>
-          <h1 class="title">Transdev Transport Analytics</h1>
-          <p class="subtitle">Power BI — Transport Exercise (demo embed)</p>
+          <h1 class="title">BOAM Report</h1>
+          <p class="subtitle">Power BI — Embedded (demo)</p>
         </div>
       </div>
       <div class="toolbar">
         <button class="btn primary" id="btn-fullscreen" title="Fullscreen">Fullscreen</button>
         <button class="btn" id="btn-reload" title="Reload report">Reload</button>
-        <button class="btn" id="btn-open" title="Open report in new tab">Open</button>
+        <button class="btn" id="btn-open" title="Open in new tab">Open</button>
         <button class="btn ghost" id="btn-theme" title="Toggle light/dark">Theme</button>
       </div>
     </header>
 
     <section class="card">
+      <span class="corner" aria-hidden="true"></span>
       <div class="frame-wrap" id="frameWrap" aria-label="Power BI report container">
         <div class="loader" id="loader" aria-live="polite">
           <div class="spinner" role="status" aria-label="Loading"></div>
         </div>
 
+        <!-- NEW EMBED -->
         <iframe
           id="pbiFrame"
-          title="Transport Exercise"
-          src="https://app.powerbi.com/reportEmbed?reportId=c9b310a9-6829-4575-ac45-ef2526738780&autoAuth=true&ctid=61cd91bb-06ad-4e1b-8834-89f4d8bed847"
+          title="BOAM_Report"
+          src="https://app.powerbi.com/reportEmbed?reportId=8de36015-c41e-4c34-aa3a-e98e7c1b8231&autoAuth=true&ctid=61cd91bb-06ad-4e1b-8834-89f4d8bed847"
           allowfullscreen="true"
           loading="eager"
           referrerpolicy="no-referrer-when-downgrade">
@@ -190,13 +198,13 @@
                 stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span>
-          If the report asks you to sign in, it’s private to your tenant. For public viewing you’d need “Publish to web” (not recommended for sensitive data).
+          If sign-in is requested, the report is tenant-restricted. For public viewing you’d need “Publish to web” (avoid for sensitive data).
         </span>
       </div>
     </section>
 
     <footer>
-      © <span id="year"></span> Kshitij Wagle · Demo for Transdev Transport Data Exercise
+      © <span id="year"></span> Kshitij Wagle · BOAM Report Demo
     </footer>
   </div>
 
@@ -208,7 +216,7 @@
     const btnReload = document.getElementById('btn-reload');
     const btnOpen = document.getElementById('btn-open');
     const btnTheme = document.getElementById('btn-theme');
-    const btnFull = document.getElementById('btn-fullscreen');
+    const btnFull  = document.getElementById('btn-fullscreen');
 
     document.getElementById('year').textContent = new Date().getFullYear();
 
